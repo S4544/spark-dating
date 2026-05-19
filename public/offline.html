@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spark — You're Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fff0f3, #ffd6e8);
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 48px 32px;
+      text-align: center;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(244,63,94,0.15);
+    }
+    .emoji { font-size: 72px; margin-bottom: 20px; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+    h1 { font-size: 28px; font-weight: 900; color: #111; margin-bottom: 8px; }
+    p { color: #666; line-height: 1.6; margin-bottom: 32px; font-size: 15px; }
+    .btn {
+      background: linear-gradient(135deg, #f43f5e, #fb923c);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .status {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #999;
+    }
+    .dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #f43f5e;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">📡</div>
+    <h1>You're Offline</h1>
+    <p>Looks like you lost your internet connection. Check your WiFi or mobile data and try again.</p>
+    <button class="btn" onclick="tryReconnect()">🔄 Try Again</button>
+    <div class="status">
+      <span class="dot"></span>
+      Waiting for connection...
+    </div>
+  </div>
+
+  <script>
+    function tryReconnect() {
+      if (navigator.onLine) {
+        window.location.href = '/';
+      } else {
+        const btn = document.querySelector('.btn');
+        btn.textContent = '❌ Still offline...';
+        setTimeout(() => { btn.textContent = '🔄 Try Again'; }, 2000);
+      }
+    }
+
+    // Auto-redirect when back online
+    window.addEventListener('online', () => {
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>
