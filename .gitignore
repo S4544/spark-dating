@@ -5,4 +5,7 @@ data/
 *.local
 .DS_Store
 Thumbs.db
+<<<<<<< HEAD
 Index.tsx.bak
+=======
+>>>>>>> 32f654e9db67216fc8116647f377357d85be97d1

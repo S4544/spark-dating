@@ -1,49 +1,52 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#f43f5e" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Spark" />
-    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png" />
+
+    <!-- SEO -->
     <title>Spark Dating — Find Real Connections Nearby 🔥</title>
-    <meta name="description" content="India's dating app for real connections. GPS-based matching, swipe cards, real messaging. Free to join, 18+ only." />
+    <meta name="description" content="Spark is India's dating app for real connections. GPS-based matching, swipe cards, real messaging. Free to join, 18+ only." />
+    <meta name="keywords" content="dating app india, meet people nearby, spark dating, find matches" />
+
+    <!-- Open Graph (WhatsApp/Facebook preview) -->
     <meta property="og:title" content="Spark Dating 🔥" />
     <meta property="og:description" content="Find real connections nearby. Free to join!" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/icons/icon-512.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Spark Dating 🔥" />
+    <meta name="twitter:description" content="Find real connections nearby. Free to join!" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/client/App.tsx"></script>
+
+    <!-- Register Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
-            .then(() => console.log('SW registered'))
+            .then(reg => console.log('✅ SW registered'))
             .catch(err => console.log('SW error:', err));
         });
       }
     </script>
-=======
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello world project</title>
-  </head>
-
-  <body>
-    <div id="root"></div>
-
-    <script type="module" src="/client/App.tsx"></script>
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
   </body>
 </html>

@@ -2,6 +2,10 @@ import "dotenv/config";
 import express, { RequestHandler } from "express";
 import cors from "cors";
 import path from "path";
+<<<<<<< HEAD
+=======
+import { handleDemo } from "./routes/demo";
+>>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
 import { handleSignup, handleLogin } from "./routes/auth";
 import { handleGetNearby } from "./routes/discover";
 import { handleLike, handlePass } from "./routes/interactions";
@@ -38,8 +42,19 @@ export function createServer() {
 
   // Public routes
   app.get("/api/ping", (_req, res) => res.json({ message: process.env.PING_MESSAGE ?? "ping" }));
+<<<<<<< HEAD
   app.post("/api/auth/signup", handleSignup);
   app.post("/api/auth/login", handleLogin);
+=======
+  app.get("/api/demo", handleDemo);
+  app.post("/api/auth/signup", handleSignup);
+  app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/demo", async (req, res) => {
+    let result = await db.login({ email: "demo@spark.app", password: "demo1234" });
+    if (!result.success) result = await db.signup({ name: "Demo User", email: "demo@spark.app", password: "demo1234", age: 25, agreedToTerms: true, agreedToPrivacy: true });
+    res.json(result);
+  });
+>>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
 
   // Protected routes
   app.get("/api/discover/nearby", authenticate, handleGetNearby);

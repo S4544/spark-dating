@@ -54,9 +54,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { Pool } = pg;
 
+const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.PG_URL || process.env.DATABASE_PRIVATE_URL;
+
+if (!dbUrl) {
+  console.error("❌ No DATABASE_URL found!");
+  process.exit(1);
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  connectionString: dbUrl,
+  ssl: dbUrl.includes("localhost") ? false : { rejectUnauthorized: false },
+  connectionTimeoutMillis: 15000,
+  idleTimeoutMillis: 30000,
+  max: 10,
 });
 
 
@@ -375,6 +385,21 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 });
 
 // ── Demo Login ────────────────────────────────────────────────────────────────
+app.post("/api/auth/demo", async (req, res) => {
+  try {
+    let r = await pool.query("SELECT id FROM users WHERE email=$1", ["demo@spark.app"]);
+    let userId;
+    if (!r.rows[0]) {
+      userId = randId();
+      const hash = await bcrypt.hash("demo1234", 10);
+      await pool.query("INSERT INTO users(id,name,email,password,age,email_verified) VALUES($1,$2,$3,$4,$5,true)", [userId, "Demo User", "demo@spark.app", hash, 25]);
+    } else { userId = r.rows[0].id; }
+    const token = randToken();
+    await pool.query("INSERT INTO tokens(token,user_id) VALUES($1,$2)", [token, userId]);
+    res.json({ success: true, userId, token, emailVerified: true });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
 // ── Forgot Password ───────────────────────────────────────────────────────────
 app.post("/api/auth/forgot-password", otpLimiter, async (req, res) => {
   try {
@@ -739,30 +764,19 @@ app.get("/api/discover/filtered", authenticate, async (req, res) => {
 // ── Notify on Like (update the like endpoint) ─────────────────────────────────
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
-const ADMIN_KEY = process.env.ADMIN_KEY;
-function requireAdmin(req, res) {
-  if (!ADMIN_KEY) {
-    res.status(503).json({ success: false, message: "Admin is not configured" });
-    return false;
-  }
-  if (req.headers["x-admin-key"] !== ADMIN_KEY) {
-    res.status(403).json({ success: false, message: "Forbidden" });
-    return false;
-  }
-  return true;
-}
+const ADMIN_KEY = process.env.ADMIN_KEY || "spark-admin-2024";
 app.get("/api/admin/users", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (req.headers["x-admin-key"] !== ADMIN_KEY) { res.status(403).json({ success: false }); return; }
   const r = await pool.query("SELECT id,name,email,age,bio,photos,gender,interested_in,email_verified,created_at FROM users ORDER BY created_at DESC");
   res.json({ success: true, count: r.rows.length, users: r.rows });
 });
 app.delete("/api/admin/users/:userId", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (req.headers["x-admin-key"] !== ADMIN_KEY) { res.status(403).json({ success: false }); return; }
   await pool.query("DELETE FROM users WHERE id=$1", [req.params.userId]);
   res.json({ success: true, message: "Deleted" });
 });
 app.get("/api/admin/stats", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (req.headers["x-admin-key"] !== ADMIN_KEY) { res.status(403).json({ success: false }); return; }
   const users = await pool.query("SELECT COUNT(*) FROM users");
   const verified = await pool.query("SELECT COUNT(*) FROM users WHERE email_verified=true");
   const messages = await pool.query("SELECT COUNT(*) FROM messages");
@@ -808,9 +822,9 @@ async function seedData() {
 // ── Start ─────────────────────────────────────────────────────────────────────
 const port = parseInt(process.env.PORT || "3000");
 async function start() {
-  console.log("🔌 Connecting to PostgreSQL (Supabase)...");
+  console.log("🔌 Connecting to database...", dbUrl.split("@")[1]?.split("/")[0] || "unknown host");
   await initDB();
-  if (process.env.SEED_SAMPLE_DATA === "true") await seedData();
+  await seedData();
   app.listen(port, "0.0.0.0", () => {
     console.log(`✅ Spark server running on http://localhost:${port}`);
     console.log(`   Open: http://localhost:${port}`);

@@ -39,5 +39,9 @@
     "vite.config.ts",
     "vite.config.server.ts"
   ],
+<<<<<<< HEAD
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+=======
+  "exclude": ["node_modules", "dist"]
+>>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
 }
