@@ -6,11 +6,7 @@ import { LoginRequest, SignupRequest } from "@shared/api";
 export class Database {
   async init() {
     await initDB();
-<<<<<<< HEAD
     if (process.env.SEED_SAMPLE_DATA === "true") await this._seedSampleData();
-=======
-    await this._seedSampleData();
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
   }
 
   private _randomId() {

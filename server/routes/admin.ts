@@ -1,17 +1,12 @@
 import { RequestHandler } from "express";
 import { db } from "../db";
 
-<<<<<<< HEAD
 const ADMIN_KEY = process.env.ADMIN_KEY;
 function checkAdmin(req: any, res: any): boolean {
   if (!ADMIN_KEY) {
     res.status(503).json({ success: false, message: "Admin is not configured" });
     return false;
   }
-=======
-const ADMIN_KEY = process.env.ADMIN_KEY || "spark-admin-2024";
-function checkAdmin(req: any, res: any): boolean {
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
   const key = req.headers["x-admin-key"] || req.query.adminKey;
   if (key !== ADMIN_KEY) { res.status(403).json({ success: false, message: "Forbidden" }); return false; }
   return true;

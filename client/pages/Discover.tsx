@@ -159,26 +159,10 @@ export default function Discover() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-<<<<<<< HEAD
     if (!token) { navigate("/login"); return; }
     fetchProfiles(filters);
   }, []);
 
-=======
-    if (!token) { autoLoginDemo(); return; }
-    fetchProfiles(filters);
-  }, []);
-
-  const autoLoginDemo = async () => {
-    try {
-      const r = await fetch("/api/auth/demo", { method: "POST" });
-      const d = await r.json();
-      if (d.success) { localStorage.setItem("token", d.token); localStorage.setItem("userId", d.userId); fetchProfiles(filters); }
-      else navigate("/login");
-    } catch { navigate("/login"); }
-  };
-
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
   const fetchProfiles = async (f: Filters) => {
     try {
       setLoading(true);

@@ -6,11 +6,6 @@ import {
   CheckCircle, XCircle, RefreshCw, Ban
 } from "lucide-react";
 
-<<<<<<< HEAD
-=======
-const ADMIN_KEY = "spark-admin-2024"; // Change this to match your .env ADMIN_KEY
-
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
 function StatCard({ icon, label, value, color }: any) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -23,11 +18,7 @@ function StatCard({ icon, label, value, color }: any) {
   );
 }
 
-<<<<<<< HEAD
 function UserRow({ user, adminKey, onDelete, onView }: any) {
-=======
-function UserRow({ user, onDelete, onView }: any) {
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -36,11 +27,7 @@ function UserRow({ user, onDelete, onView }: any) {
     try {
       const r = await fetch(`/api/admin/users/${user.id}`, {
         method: "DELETE",
-<<<<<<< HEAD
         headers: { "x-admin-key": adminKey },
-=======
-        headers: { "x-admin-key": ADMIN_KEY },
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
       });
       const d = await r.json();
       if (d.success) onDelete(user.id);
@@ -391,10 +378,7 @@ export default function AdminDashboard() {
                         <UserRow
                           key={user.id}
                           user={user}
-<<<<<<< HEAD
                           adminKey={adminKey}
-=======
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
                           onDelete={(id: string) => setUsers(prev => prev.filter(u => u.id !== id))}
                           onView={setSelectedUser}
                         />

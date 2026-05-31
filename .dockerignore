@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 node_modules/
 dist/
 data/
@@ -6,40 +5,3 @@ data/
 *.log
 .DS_Store
 Thumbs.db
-=======
-node_modules
-**/node_modules/**
-dist
-.git
-.gitignore
-README.md
-
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-.DS_Store
-.vscode
-.idea
-.cursor
-
-*.swp
-*.swo
-*~
-*.log
-*.tmp
-*.tmp.*
-
-coverage
-.nyc_output
-.eslintcache
-
-Dockerfile
-.netlify
->>>>>>> 32f654e9db67216fc8116647f377357d85be97d1
