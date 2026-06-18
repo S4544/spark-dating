@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "buildCommand": "vite build",
+  "outputDirectory": "dist/spa",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://spark-dating.onrender.com/api/$1"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "https://spark-dating.onrender.com/uploads/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
