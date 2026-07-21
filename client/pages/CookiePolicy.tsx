@@ -1,26 +1,20 @@
-import { Link } from "react-router-dom";
 export default function CookiePolicy() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-black text-rose-500">🔥 Spark</Link>
-      </nav>
-      <div className="max-w-3xl mx-auto px-6 py-14">
-        <h1 className="text-4xl font-black text-gray-900 mb-2">Cookie Policy</h1>
-        <p className="text-gray-500 mb-10">Last updated: January 1, 2024</p>
-        {[
-          ["What Are Cookies?","Cookies are small text files stored on your device when you visit Spark. They help us remember your preferences and improve your experience."],
-          ["Essential Cookies","These are required for the app to function. They keep you logged in and remember your session. You cannot disable these without affecting app functionality."],
-          ["Analytics Cookies","We use analytics to understand how users interact with Spark — which features are popular, how long sessions last, and where errors occur. This helps us improve the app."],
-          ["Preference Cookies","These remember your settings, such as notification preferences and display options, so you don't have to set them every visit."],
-          ["Managing Cookies","You can control cookies through your browser settings. Disabling cookies may affect some features of Spark. Most browsers allow you to refuse new cookies or delete existing ones."],
-          ["Contact","For cookie-related questions, email us at privacy@sparkdate.app"],
-        ].map(([title,body])=>(
-          <div key={title} className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-3">{title}</h2>
-            <p className="text-gray-600 leading-relaxed">{body}</p>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 py-12">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="bg-white rounded-3xl shadow-lg p-8">
+          <h1 className="text-4xl font-black text-gray-900 mb-8">Cookie Policy</h1>
+          <div className="prose prose-lg max-w-none space-y-6 text-gray-700">
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mt-6 mb-3">What are Cookies?</h2>
+              <p>Cookies are small data files stored on your device to enhance your browsing experience.</p>
+            </section>
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mt-6 mb-3">How We Use Cookies</h2>
+              <p>We use cookies for authentication, preferences, and analytics to improve our service.</p>
+            </section>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );
