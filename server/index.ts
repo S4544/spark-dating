@@ -3,7 +3,7 @@ import express, { RequestHandler } from "express";
 import cors from "cors";
 import path from "path";
 import { handleSignup, handleLogin } from "./routes/auth";
-import { handleGetNearby } from "./routes/discover";
+import { handleGetNearby, handleGetFiltered } from "./routes/discover";
 import { handleLike, handlePass } from "./routes/interactions";
 import { handleGetProfile, handleUpdateProfile } from "./routes/profile";
 import { handleAdminGetUsers, handleAdminDeleteUser, handleAdminUpdateUser, handleAdminStats } from "./routes/admin";
@@ -36,6 +36,19 @@ export function createServer() {
     next();
   };
 
+  // Admin auth middleware - header only, not query params
+  const authenticateAdmin: RequestHandler = (req, res, next) => {
+    const ADMIN_KEY = process.env.ADMIN_KEY;
+    if (!ADMIN_KEY) {
+      res.status(503).json({ success: false, message: "Admin is not configured" }); return;
+    }
+    const key = req.headers["x-admin-key"];
+    if (key !== ADMIN_KEY) {
+      res.status(403).json({ success: false, message: "Forbidden" }); return;
+    }
+    next();
+  };
+
   // Public routes
   app.get("/api/ping", (_req, res) => res.json({ message: process.env.PING_MESSAGE ?? "ping" }));
   app.post("/api/auth/signup", handleSignup);
@@ -43,6 +56,7 @@ export function createServer() {
 
   // Protected routes
   app.get("/api/discover/nearby", authenticate, handleGetNearby);
+  app.get("/api/discover/filtered", authenticate, handleGetFiltered);
   app.post("/api/interactions/like", authenticate, handleLike);
   app.post("/api/interactions/pass", authenticate, handlePass);
   app.get("/api/profile", authenticate, handleGetProfile);
@@ -58,11 +72,11 @@ export function createServer() {
   app.get("/api/messages/:matchId", authenticate, handleGetMessages);
   app.post("/api/messages/:matchId", authenticate, handleSendMessage);
 
-  // Admin
-  app.get("/api/admin/users", handleAdminGetUsers);
-  app.delete("/api/admin/users/:userId", handleAdminDeleteUser);
-  app.post("/api/admin/users/:userId/profile", handleAdminUpdateUser);
-  app.get("/api/admin/stats", handleAdminStats);
+  // Admin - now with proper authentication
+  app.get("/api/admin/users", authenticateAdmin, handleAdminGetUsers);
+  app.delete("/api/admin/users/:userId", authenticateAdmin, handleAdminDeleteUser);
+  app.post("/api/admin/users/:userId/profile", authenticateAdmin, handleAdminUpdateUser);
+  app.get("/api/admin/stats", authenticateAdmin, handleAdminStats);
 
   return app;
 }

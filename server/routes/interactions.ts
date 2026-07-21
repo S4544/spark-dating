@@ -8,7 +8,10 @@ export const handleLike: RequestHandler = async (req, res) => {
     if (!profileId) { res.status(400).json({ success: false, message: "profileId required" }); return; }
     const result = await db.like(userId, profileId);
     res.json(result);
-  } catch { res.status(500).json({ success: false, message: "Server error" }); }
+  } catch (e: any) {
+    console.error("Like error:", e.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 export const handlePass: RequestHandler = async (req, res) => {
@@ -18,5 +21,8 @@ export const handlePass: RequestHandler = async (req, res) => {
     if (!profileId) { res.status(400).json({ success: false, message: "profileId required" }); return; }
     const result = await db.pass(userId, profileId);
     res.json(result);
-  } catch { res.status(500).json({ success: false, message: "Server error" }); }
+  } catch (e: any) {
+    console.error("Pass error:", e.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };

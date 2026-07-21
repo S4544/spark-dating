@@ -3,6 +3,13 @@ import { pool, initDB } from "./database";
 import bcrypt from "bcryptjs";
 import { LoginRequest, SignupRequest } from "@shared/api";
 
+interface FilterOptions {
+  minAge: number;
+  maxAge: number;
+  maxDistance: number;
+  gender: string;
+}
+
 export class Database {
   async init() {
     await initDB();
@@ -65,7 +72,7 @@ export class Database {
     } catch { return null; }
   }
 
-  // ── Profile ───────────────────────────────────────────────────────────────
+  // ── Profile ──────────────────────────────────────────────────────────────
 
   async getProfile(userId: string): Promise<any | null> {
     try {
@@ -153,16 +160,69 @@ export class Database {
     }
   }
 
-  // ── Interactions ──────────────────────────────────────────────────────────
+  async getNearbyUsersFiltered(userId: string, filters: FilterOptions): Promise<any[]> {
+    try {
+      const me = await pool.query(
+        "SELECT latitude,longitude,gender,interested_in FROM users WHERE id=$1", [userId]
+      );
+      if (!me.rows[0]) return [];
+      const { latitude: lat, longitude: lng } = me.rows[0];
 
-  async like(userId: string, likedId: string): Promise<{ success: boolean; message: string }> {
+      // Build WHERE clause based on filters
+      const whereClauses = [
+        "u.id != $1",
+        "u.id NOT IN (SELECT liked_id FROM likes WHERE user_id=$1)",
+        "u.id NOT IN (SELECT passed_id FROM passes WHERE user_id=$1)",
+        `u.age >= ${filters.minAge}`,
+        `u.age <= ${filters.maxAge}`,
+      ];
+
+      if (filters.gender !== "all") {
+        whereClauses.push(`u.gender = '${filters.gender}'`);
+      }
+
+      const result = await pool.query(`
+        SELECT u.id,u.name,u.age,u.bio,u.photos,u.gender,u.interested_in,u.latitude,u.longitude
+        FROM users u
+        WHERE ${whereClauses.join(" AND ")}
+        LIMIT 50
+      `, [userId]);
+
+      // Apply distance filter after fetching
+      return result.rows
+        .map((u) => ({
+          ...this._mapUser(u),
+          distance: this._calcDistance(lat, lng, u.latitude, u.longitude),
+        }))
+        .filter((u) => u.distance <= filters.maxDistance)
+        .sort((a, b) => a.distance - b.distance);
+    } catch (e: any) {
+      console.error("getNearbyUsersFiltered error:", e.message);
+      return [];
+    }
+  }
+
+  // ── Interactions ────────────────────────────────────────────────────────────
+
+  async like(userId: string, likedId: string): Promise<{ success: boolean; message: string; isMatch?: boolean }> {
     try {
       await pool.query(
         "INSERT INTO likes (user_id,liked_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
         [userId, likedId]
       );
-      return { success: true, message: "Liked" };
-    } catch { return { success: false, message: "Failed" }; }
+
+      // Check if it's a mutual match
+      const matchCheck = await pool.query(
+        "SELECT user_id FROM likes WHERE user_id=$1 AND liked_id=$2",
+        [likedId, userId]
+      );
+
+      const isMatch = matchCheck.rows.length > 0;
+      return { success: true, message: "Liked", isMatch };
+    } catch (e: any) {
+      console.error("Like error:", e.message);
+      return { success: false, message: "Failed" };
+    }
   }
 
   async pass(userId: string, passedId: string): Promise<{ success: boolean; message: string }> {
@@ -172,7 +232,10 @@ export class Database {
         [userId, passedId]
       );
       return { success: true, message: "Passed" };
-    } catch { return { success: false, message: "Failed" }; }
+    } catch (e: any) {
+      console.error("Pass error:", e.message);
+      return { success: false, message: "Failed" };
+    }
   }
 
   // ── Matches & Messages ────────────────────────────────────────────────────
@@ -229,7 +292,7 @@ export class Database {
     } catch { return []; }
   }
 
-  // ── Admin ─────────────────────────────────────────────────────────────────
+  // ── Admin ───────────────────────────────────────────────────────────────
 
   async getAllUsers(): Promise<any[]> {
     try {
@@ -248,10 +311,13 @@ export class Database {
       await pool.query("DELETE FROM messages WHERE from_id=$1 OR to_id=$1", [userId]);
       await pool.query("DELETE FROM tokens WHERE user_id=$1", [userId]);
       return { success: true, message: "User deleted" };
-    } catch { return { success: false, message: "Delete failed" }; }
+    } catch (e: any) {
+      console.error("Delete error:", e.message);
+      return { success: false, message: "Delete failed" };
+    }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────────────────
 
   private _mapUser(u: any) {
     return {
@@ -272,7 +338,7 @@ export class Database {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
-  // ── Sample Data ───────────────────────────────────────────────────────────
+  // ── Sample Data ─────────────────────────────────────────────────────────────
 
   private async _seedSampleData() {
     try {
